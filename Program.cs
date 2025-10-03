@@ -39,6 +39,6 @@ internal class Program
             StringPrefixes = ["."]
         });
         
-        commands.RegisterCommands<BasicCommandModule>();
+        commands.RegisterCommands<UserCommandModule>();
     }
 }
