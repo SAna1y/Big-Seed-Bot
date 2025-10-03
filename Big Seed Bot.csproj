@@ -8,4 +8,17 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="DisCatSharp" Version="10.7.0-nightly-031" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update=".env">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update=".env.example">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
