@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="DisCatSharp" Version="10.7.0-nightly-031" />
+      <PackageReference Include="DisCatSharp.CommandsNext" Version="10.7.0-nightly-031" />
     </ItemGroup>
 
     <ItemGroup>

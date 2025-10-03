@@ -1,4 +1,4 @@
-namespace Big_Seed_Bot.utils;
+namespace Big_Seed_Bot.Utils;
 
 public static class DotEnvReader
 {
@@ -6,7 +6,6 @@ public static class DotEnvReader
     {
         if (!File.Exists(envFile))
         {
-            Console.Error.WriteLine($"File {envFile} does not exist");
             return null;
         }
 
