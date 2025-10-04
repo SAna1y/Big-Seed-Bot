@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Big_Seed_Bot.Api_Handler.GelbooruWrapper;
 using Big_Seed_Bot.Commands;
 using Big_Seed_Bot.Utils;
 using DisCatSharp;
@@ -10,10 +11,16 @@ namespace Big_Seed_Bot;
 internal class Program
 {
     private static readonly string? Token = DotEnvReader.Read( Path.GetFullPath(".env"))?["TOKEN"];
+    private static readonly string? APIKey = DotEnvReader.Read( Path.GetFullPath(".env"))?["GELBOORUKEY"];
+    private static readonly string? UserID = DotEnvReader.Read( Path.GetFullPath(".env"))?["GELBOORUID"];
+    
+    
     private static void Main(string[] args)
     {
-        if (Token is null) 
-            Console.WriteLine("No token was provided. Set an Environment Variable in your .env file."); 
+        if (Token is null || APIKey is null || UserID is null) 
+            Console.WriteLine("A key was not provided. Set up your .env file."); 
+        Authenticator gelbooruAuth = new Authenticator(APIKey, UserID);
+        Wrapper wrapper = new Wrapper(gelbooruAuth);
         
         MainAsync().GetAwaiter().GetResult();
     }
@@ -40,5 +47,6 @@ internal class Program
         });
         
         commands.RegisterCommands<UserCommandModule>();
+        commands.RegisterCommands<ApiCommandModule>();
     }
 }

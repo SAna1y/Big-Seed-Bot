@@ -21,5 +21,4 @@ public class UserCommandModule : BaseCommandModule
         
         await ctx.Channel.SendMessageAsync(picture);
     }
-    
 }
