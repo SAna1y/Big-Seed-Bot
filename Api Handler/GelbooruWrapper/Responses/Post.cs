@@ -1,12 +1,15 @@
+using System.Text.Json.Serialization;
 namespace Big_Seed_Bot.Api_Handler.GelbooruWrapper.Responses;
 
-public class RootObject
+
+public class PostRoot
 {
-    public _attributes _attributes { get; set; }
-    public Post[] post { get; set; }
+    [JsonPropertyName("@attributes")]
+    public PostAttribute? attribute { get; set; }
+    public Post[]? post { get; set; }
 }
 
-public class _attributes
+public class PostAttribute
 {
     public int limit { get; set; }
     public int offset { get; set; }

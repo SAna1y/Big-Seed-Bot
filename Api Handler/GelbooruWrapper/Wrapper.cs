@@ -1,4 +1,3 @@
-
 using System.Text.Json;
 using Big_Seed_Bot.Api_Handler.GelbooruWrapper.Responses;
 
@@ -25,37 +24,36 @@ public class Wrapper
         WrapperInstance = this;
     }
 
-    public async Task<Post?> GetPost(string id = "", string tags = "")
+    public async Task<string?> GetPost(string id = "", string tags = "")
     {
         _urlExtension += $"page=dapi&s=post&q=index&{_authenticationUrl}&limit=1&json=1&tags={tags}&id={id}";
+        string? post = await Get(_urlExtension);
+        return post;
+    }
+
+    public async Task<string?> GetRandomPost(string tags = "")
+    {
+        tags = "sort:random " + tags;
+        _urlExtension += $"page=dapi&s=post&q=index&{_authenticationUrl}&limit=1&json=1&tags={tags}";
+        string? post = await Get(_urlExtension);
+        return post;
+    }
+
+    private async Task<string?> Get(string urlExtension)
+    {
         try
         {
-            string responseBody = await _client.GetStringAsync(_urlExtension);
+            string responseBody = await _client.GetStringAsync(urlExtension);
             
-            RootObject? root = JsonSerializer.Deserialize<RootObject>(responseBody, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-            if (root is null) throw new HttpRequestException("response body is null");
-
-            if (id.Equals("") && tags.Equals("")) _maxPostCount = root._attributes.count;
+            PostRoot? root = JsonSerializer.Deserialize<PostRoot>(responseBody);
+            if (root is null || root.post?[0] is null) throw new HttpRequestException("hát ez nem talált öcsi");
             
-            return root.post[0];
+            return root.post?[0].file_url;
         }
         catch (HttpRequestException e)
         {
             Console.WriteLine(e.Message);
-            return null;
+            return e.Message;
         }
-    }
-
-    public async Task<Post?> GetRandomPost()
-    {
-        Post? post = await GetPost();
-        if (post is null) throw new HttpRequestException("response body is null");
-        
-        Random random = new Random();
-        int id = random.Next(_maxPostCount+1);
-
-        post = await GetPost(id.ToString());
-        if (post is null) throw new HttpRequestException("response body is null");
-        return post;
     }
 }
