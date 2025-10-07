@@ -6,54 +6,53 @@ namespace Big_Seed_Bot.Api_Handler.GelbooruWrapper;
 public class Wrapper
 {
     public static Wrapper? WrapperInstance;
-    
-    private readonly string _baseURL = "https://gelbooru.com/";
+
+    private const string BaseUrl = "https://gelbooru.com/";
     private string _urlExtension = "index.php?";
     private readonly string? _authenticationUrl;
     
-    private HttpClient _client = new HttpClient();
-    private int _maxPostCount;
+    private readonly HttpClient _client = new HttpClient();
 
     public Wrapper(Authenticator authenticator)
     {
         if (WrapperInstance is not null) return;
         
         _authenticationUrl = $"&api_key={authenticator.Key}&user_id={authenticator.UserId}";
-        _client.BaseAddress = new Uri(_baseURL);
+        _client.BaseAddress = new Uri(BaseUrl);
         
         WrapperInstance = this;
     }
 
-    public async Task<string?> GetPost(string id = "", string tags = "")
+    public async Task<PostResult> GetPost(string id = "", string tags = "")
     {
         _urlExtension += $"page=dapi&s=post&q=index&{_authenticationUrl}&limit=1&json=1&tags={tags}&id={id}";
-        string? post = await Get(_urlExtension);
+        PostResult post = await Get(_urlExtension);
+        
         return post;
     }
 
-    public async Task<string?> GetRandomPost(string tags = "")
+    public async Task<PostResult> GetRandomPost(string tags = "")
     {
-        tags = "sort:random " + tags;
+        tags = "sort:random -loli* rating:g " + tags;
         _urlExtension += $"page=dapi&s=post&q=index&{_authenticationUrl}&limit=1&json=1&tags={tags}";
-        string? post = await Get(_urlExtension);
+        PostResult post = await Get(_urlExtension);
+        
         return post;
     }
 
-    private async Task<string?> Get(string urlExtension)
+    private async Task<PostResult> Get(string urlExtension)
     {
         try
         {
             string responseBody = await _client.GetStringAsync(urlExtension);
             
             PostRoot? root = JsonSerializer.Deserialize<PostRoot>(responseBody);
-            if (root is null || root.post?[0] is null) throw new HttpRequestException("hát ez nem talált öcsi");
-            
-            return root.post?[0].file_url;
+            return new PostResult(root?.post?[0], null);
         }
         catch (HttpRequestException e)
         {
             Console.WriteLine(e.Message);
-            return e.Message;
+            return new PostResult(null, e.Message);
         }
     }
 }

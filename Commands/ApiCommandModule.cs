@@ -7,7 +7,9 @@ namespace Big_Seed_Bot.Commands;
 
 public class ApiCommandModule : BaseCommandModule
 {
-    [Command("gelbooru")]
+    private PostResult _lastResult;
+    
+    [Command("goon")]
     public async Task GelbooruGetPostCommand(CommandContext ctx, params string[] text)
     {
         if (Wrapper.WrapperInstance is null)
@@ -24,13 +26,29 @@ public class ApiCommandModule : BaseCommandModule
             else search += "*" + word + "* ";
         }
 
-        string? post = await Wrapper.WrapperInstance.GetRandomPost(search);
-        if (post is null)
+        PostResult result = await Wrapper.WrapperInstance.GetRandomPost(tags: search);
+        _lastResult = result;
+        
+        if (result.Post is null)
         {
-            await ctx.Channel.SendMessageAsync("error");
+            await ctx.Channel.SendMessageAsync("error: " + result.Error);
             return;
         }
 
-        await ctx.Channel.SendMessageAsync($"||{post} ||");
+        await ctx.Channel.SendMessageAsync($"||{result.Post.file_url} ||");
+    }
+
+    [Command("link")]
+    public async Task GelbooruGetLastPostLink(CommandContext ctx)
+    {
+        if (_lastResult.Post is null)
+        {
+            await ctx.Channel.SendMessageAsync("No post found!");
+            return;
+        }
+
+        string link = $"https://gelbooru.com/index.php?page=post&s=view&id={_lastResult.Post.id}";
+        await ctx.Channel.SendMessageAsync($"<{link}>");
+        
     }
 }
