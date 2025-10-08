@@ -4,16 +4,17 @@ using Big_Seed_Bot.Commands;
 using Big_Seed_Bot.Utils;
 using DisCatSharp;
 using DisCatSharp.CommandsNext;
+using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 
 namespace Big_Seed_Bot;
 
 internal class Program
 {
-    private static readonly string? Token = DotEnvReader.Read( Path.GetFullPath(".env"))?["TOKEN"];
-    private static readonly string? APIKey = DotEnvReader.Read( Path.GetFullPath(".env"))?["GELBOORUKEY"];
-    private static readonly string? UserID = DotEnvReader.Read( Path.GetFullPath(".env"))?["GELBOORUID"];
-    
+    private static readonly Dictionary<string, string>? _env = DotEnvReader.Read(Path.GetFullPath(".env"));
+    private static readonly string? Token = _env?["TOKEN"];
+    private static readonly string? APIKey = _env?["GELBOORUKEY"];
+    private static readonly string? UserID = _env?["GELBOORUID"];
     
     private static void Main(string[] args)
     {
