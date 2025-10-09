@@ -28,7 +28,10 @@ public class ApiCommandModule : BaseCommandModule
             return;
         }
         
-        await ctx.Channel.SendMessageAsync(result.Post.file_url);
+        DiscordEmbedBuilder embed = new DiscordEmbedBuilder();
+        embed.WithImageUrl(result.Post.file_url);
+        
+        await ctx.Channel.SendMessageAsync(embed.Build());
     }
 
     [Command("link")]
@@ -42,6 +45,5 @@ public class ApiCommandModule : BaseCommandModule
 
         string link = $"https://gelbooru.com/index.php?page=post&s=view&id={_lastResult.Post.id}";
         await ctx.Channel.SendMessageAsync($"<{link}>");
-        
     }
 }

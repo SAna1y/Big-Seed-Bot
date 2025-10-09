@@ -18,8 +18,11 @@ internal class Program
     
     private static void Main(string[] args)
     {
-        if (Token is null || APIKey is null || UserID is null) 
+        if (Token is null || APIKey is null || UserID is null)
+        {
             Console.WriteLine("A key was not provided. Set up your .env file."); 
+            return;
+        }
         Authenticator gelbooruAuth = new Authenticator(APIKey, UserID);
         Wrapper wrapper = new Wrapper(gelbooruAuth);
         
@@ -36,6 +39,7 @@ internal class Program
         
         CommandsSetup(discord);
         await discord.ConnectAsync();
+        await discord.UpdateStatusAsync(activity: new DiscordActivity("activity", ActivityType.Custom) {Name = "planting flowers"});
         discord.RegisterEventHandlers(Assembly.GetExecutingAssembly());
         
         await Task.Delay(-1);
