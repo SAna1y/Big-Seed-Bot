@@ -15,6 +15,8 @@ internal class Program
     private static readonly string? Token = _env?["TOKEN"];
     private static readonly string? APIKey = _env?["GELBOORUKEY"];
     private static readonly string? UserID = _env?["GELBOORUID"];
+
+    public static Authenticator _gelbooruAuth {get; private set;}
     
     private static void Main(string[] args)
     {
@@ -23,8 +25,7 @@ internal class Program
             Console.WriteLine("A key was not provided. Set up your .env file."); 
             return;
         }
-        Authenticator gelbooruAuth = new Authenticator(APIKey, UserID);
-        Wrapper wrapper = new Wrapper(gelbooruAuth);
+        _gelbooruAuth = new Authenticator(APIKey, UserID);
         
         MainAsync().GetAwaiter().GetResult();
     }
@@ -52,6 +53,7 @@ internal class Program
         });
         
         commands.RegisterCommands<UserCommandModule>();
-        commands.RegisterCommands<ApiCommandModule>();
+        commands.RegisterCommands<GelbooruCommandModule>();
+        commands.RegisterCommands<NhentaiCommandModule>();
     }
 }
