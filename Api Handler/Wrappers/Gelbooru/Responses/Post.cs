@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
-namespace Big_Seed_Bot.Api_Handler.GelbooruWrapper.Responses;
+
+namespace Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru.Responses;
 
 
 public class PostRoot

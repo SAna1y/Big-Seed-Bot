@@ -15,4 +15,17 @@ public class NhentaiCommandModule : BaseCommandModule
         string result = await _client.Get();
         await ctx.Channel.SendMessageAsync(result[..100]);
     }
+    
+    [Command("read")]
+    public async Task NhentaiRead(CommandContext ctx)
+    {
+        byte[] result = await _client.GetImage();
+        
+        MemoryStream stream = new MemoryStream(result);
+        DiscordMessageBuilder builder =
+            new DiscordMessageBuilder().WithFile("image.png", stream);
+        
+        
+        await builder.SendAsync(ctx.Channel);
+    }
 }

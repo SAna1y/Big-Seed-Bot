@@ -1,5 +1,5 @@
-using Big_Seed_Bot.Api_Handler.GelbooruWrapper.Responses;
 using Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru;
+using Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru.Responses;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;

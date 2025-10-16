@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Big_Seed_Bot.Api_Handler.GelbooruWrapper;
-using Big_Seed_Bot.Api_Handler.GelbooruWrapper.Responses;
+using Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru.Responses;
 
 namespace Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru;
 

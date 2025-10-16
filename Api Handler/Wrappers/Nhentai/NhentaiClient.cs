@@ -9,16 +9,32 @@ public class NhentaiClient : Wrapper
         Client.BaseAddress = new Uri(BaseUrl);
     }
 
-    public async Task<string> Get()
+    public async Task<string> Get(string url = "")
     {
         try
         {
-            string responseBody = await Client.GetStringAsync("search?&page=1&query=hentai");
+            string responseBody = await Client.GetStringAsync(url);
             return responseBody;
         }
         catch (HttpRequestException e)
         {
             return e.Message;
+        }
+    }
+
+    public async Task<byte[]> GetImage()
+    {
+        
+        Client.BaseAddress = new Uri("https://t3.nhentai.net/galleries/");
+        
+        try
+        {
+            byte[] responseBody = await Client.GetByteArrayAsync("3586851/1t.webp");
+            return responseBody;
+        }
+        catch (HttpRequestException e)
+        {
+            return [];
         }
     }
 }

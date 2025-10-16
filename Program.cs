@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Big_Seed_Bot.Api_Handler.GelbooruWrapper;
+﻿using Big_Seed_Bot.Api_Handler.GelbooruWrapper;
 using Big_Seed_Bot.Commands;
 using Big_Seed_Bot.Utils;
 using DisCatSharp;
@@ -41,7 +40,6 @@ internal class Program
         CommandsSetup(discord);
         await discord.ConnectAsync();
         await discord.UpdateStatusAsync(activity: new DiscordActivity("activity", ActivityType.Custom) {Name = "planting flowers"});
-        discord.RegisterEventHandlers(Assembly.GetExecutingAssembly());
         
         await Task.Delay(-1);
     }
