@@ -1,40 +1,42 @@
+using Big_Seed_Bot.Api_Handler.Wrappers.Responses;
+using Big_Seed_Bot.Api_Handler.Wrappers.Responses.NhentaiResponses;
+
 namespace Big_Seed_Bot.Api_Handler.Wrappers.Nhentai;
 
 public class NhentaiClient : Wrapper
 {
+    private Uri _baseImageUrl = new Uri("https://i.nhentai.net/galleries/");
+    private Uri _baseUrlById = new Uri("https://nhentai.net/api/gallery/");
     public NhentaiClient()
     {
-        BaseUrl = "https://nhentai.net/api/galleries/";
-        BaseTags = "-loli";
-        Client.BaseAddress = new Uri(BaseUrl);
+        BaseUrl = new Uri("https://nhentai.net/api/galleries/");
+        Client.BaseAddress = BaseUrl;
     }
 
-    public async Task<string> Get(string url = "")
+    public async Task<Response<NhentaiPost>> GetPostById(int id)
     {
+        Uri uri =  new Uri(_baseUrlById, id.ToString());
+        Response<NhentaiPost> result = await Get<NhentaiPost>(Client.GetStringAsync, uri.AbsoluteUri);
+        
+        return result;
+    }
+    
+    public async Task<Response<NhentaiImage>> GetImage(string mediaId, int pageNumber, ImageType? imageType)
+    {
+        Uri uri =  new Uri(_baseImageUrl, $"{mediaId}/{pageNumber}.{imageType}");
+        Response<NhentaiImage> result;
+
         try
         {
-            string responseBody = await Client.GetStringAsync(url);
-            return responseBody;
+            byte[] responseBody = await Client.GetByteArrayAsync(uri.AbsoluteUri);
+            NhentaiImage image = new NhentaiImage(uri.AbsoluteUri, responseBody);
+            result = new Response<NhentaiImage>(image, null,  uri.AbsoluteUri);
         }
         catch (HttpRequestException e)
         {
-            return e.Message;
+            result = new Response<NhentaiImage>(null, e.Message, uri.AbsoluteUri);
         }
-    }
-
-    public async Task<byte[]> GetImage()
-    {
         
-        Client.BaseAddress = new Uri("https://t3.nhentai.net/galleries/");
-        
-        try
-        {
-            byte[] responseBody = await Client.GetByteArrayAsync("3586851/1t.webp");
-            return responseBody;
-        }
-        catch (HttpRequestException e)
-        {
-            return [];
-        }
+        return result;
     }
 }

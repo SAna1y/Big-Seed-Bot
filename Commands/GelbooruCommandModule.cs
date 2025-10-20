@@ -1,5 +1,6 @@
 using Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru;
-using Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru.Responses;
+using Big_Seed_Bot.Api_Handler.Wrappers.Responses;
+using Big_Seed_Bot.Api_Handler.Wrappers.Responses.GelbooruResponses;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
@@ -8,7 +9,7 @@ namespace Big_Seed_Bot.Commands;
 
 public class GelbooruCommandModule : BaseCommandModule
 {
-    private PostResult _lastResult;
+    private Response<GelbooruPostRoot> _lastResult;
     private DiscordMessage? _lastMessage;
     private GelbooruClient _client = new GelbooruClient(Program._gelbooruAuth);
     
@@ -16,28 +17,28 @@ public class GelbooruCommandModule : BaseCommandModule
     public async Task GelbooruGetPostCommand(CommandContext ctx, params string[] searchText)
     {
         
-        PostResult result = await _client.GetRandomPost(searchText);
+        Response<GelbooruPostRoot> result = await _client.GetRandomPost(searchText);
         _lastResult = result;
         
-        if (result.Post is null)
+        if (result.ApiResponse is null)
         {
             await ctx.Channel.SendMessageAsync("error: " + result.Error);
             return;
         }
         
-        _lastMessage = await ctx.Channel.SendMessageAsync(result.Post.file_url);
+        _lastMessage = await ctx.Channel.SendMessageAsync(result.ApiResponse.GetUrl());
     }
 
     [Command("link")]
     public async Task GelbooruGetLastPostLink(CommandContext ctx)
     {
-        if (_lastResult.Post is null)
+        if (_lastResult.ApiResponse?.Posts is null)
         {
             await ctx.Channel.SendMessageAsync(_lastResult.Error??"No post found!");
             return;
         }
 
-        string link = $"https://gelbooru.com/index.php?page=post&s=view&id={_lastResult.Post.id}";
+        string link = $"https://gelbooru.com/index.php?page=post&s=view&id={_lastResult.ApiResponse.Posts[0].Id}";
         await ctx.Channel.SendMessageAsync($"<{link}>");
     }
 

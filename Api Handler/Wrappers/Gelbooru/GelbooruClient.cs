@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Big_Seed_Bot.Api_Handler.GelbooruWrapper;
-using Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru.Responses;
+using Big_Seed_Bot.Api_Handler.Wrappers.Responses;
+using Big_Seed_Bot.Api_Handler.Wrappers.Responses.GelbooruResponses;
 
 namespace Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru;
 
@@ -10,58 +11,38 @@ public class GelbooruClient : Wrapper
 
     public GelbooruClient(Authenticator authenticator)
     {
-        BaseUrl = "https://gelbooru.com/";
-        Client.BaseAddress = new Uri(BaseUrl);
+        BaseUrl = new Uri("https://gelbooru.com/");
         UrlExtension = "index.php?";
         BaseTags = "rating:g -loli";
         _authenticationUrl = $"&user_id={authenticator.UserId}&api_key={authenticator.Key}";
     }
     
-    public async Task<PostResult> GetPost(string id = "", string tags = "")
+    public async Task<Response<GelbooruPostRoot>> GetPost(string id = "", string tags = "")
     {
-        UrlExtension += $"page=dapi&s=post&q=index{_authenticationUrl}&limit=1&json=1&tags={BaseTags} {tags}&id={id}";
-        PostResult post = await Get(UrlExtension);
+        Uri uri = new Uri(BaseUrl,$"{UrlExtension}page=dapi&s=post&q=index{_authenticationUrl}&limit=1&json=1&tags={BaseTags} {tags}&id={id}");
+        Response<GelbooruPostRoot> post = await Get<GelbooruPostRoot>(Client.GetStringAsync, uri.AbsoluteUri);
         
         return post;
     }
 
-    public async Task<PostResult> GetRandomPost(string[]? searchWords)
+    public async Task<Response<GelbooruPostRoot>> GetRandomPost(string[]? searchWords)
     {
         searchWords ??= [" "];
         string tags = $"sort:random {BaseTags} " + string.Join(" ", searchWords);
-        string extension = UrlExtension + $"page=dapi&s=post&q=index{_authenticationUrl}&limit=1&json=1&tags={tags}";
+        Uri uri = new Uri(BaseUrl,$"{UrlExtension}page=dapi&s=post&q=index{_authenticationUrl}&limit=1&json=1&tags={tags}");
         
-        PostResult post = await Get(extension);
-        if (post.Post is not null)
+        Response<GelbooruPostRoot> post = await Get<GelbooruPostRoot>(Client.GetStringAsync, uri.AbsoluteUri);
+        if (post.ApiResponse?.Posts is not null)
         {
             return post;
         }
         
-        tags = $"sort:random {BaseTags} " + GetUpdatedSearchString(searchWords);
-        extension = UrlExtension + $"page=dapi&s=post&q=index{_authenticationUrl}&limit=1&json=1&tags={tags}";
+        tags = $"sort:random {BaseTags} {GetUpdatedSearchString(searchWords)}";
+        uri = new Uri(BaseUrl,$"{UrlExtension}page=dapi&s=post&q=index{_authenticationUrl}&limit=1&json=1&tags={tags}");
         
-        post = await Get(extension);
+        post = await Get<GelbooruPostRoot>(Client.GetStringAsync, uri.AbsoluteUri);;
         
         return post;
-    }
-
-    private async Task<PostResult> Get(string urlExtension)
-    {
-        PostResult result;
-        try
-        {
-            string responseBody = await Client.GetStringAsync(urlExtension);
-            
-            PostRoot? root = JsonSerializer.Deserialize<PostRoot>(responseBody);
-            result = new PostResult(root?.post?[0], null, BaseUrl + urlExtension);
-        }
-        catch (HttpRequestException e)
-        {
-            Console.WriteLine(e.Message);
-            result = new PostResult(null, e.Message, BaseUrl + urlExtension);
-        }
-        result.Log();
-        return result;
     }
     
     private string GetUpdatedSearchString(string[] searchWords)
