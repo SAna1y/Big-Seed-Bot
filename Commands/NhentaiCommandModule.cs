@@ -1,10 +1,12 @@
 using Big_Seed_Bot.Api_Handler.Wrappers.Nhentai;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses.NhentaiResponses;
+using DisCatSharp;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using DisCatSharp.EventArgs;
 
 
 namespace Big_Seed_Bot.Commands;
@@ -63,34 +65,23 @@ public class NhentaiCommandModule : BaseCommandModule
                     emoji: new DiscordComponentEmoji("👉"))
             );
         
-        DiscordMessage message = await messageBuilder.SendAsync(ctx.Channel);
-        
-        ctx.Client.ComponentInteractionCreated += async (s, e) =>
-        {
-            switch (e.Id)
-            {
-                case "forwardButton":
-                    embed = await GetEmbedByPage(ctx, postResult.ApiResponse, 1);
-                    
-                    if (embed is null)
-                    {
-                        return;
-                    }
+        await messageBuilder.SendAsync(ctx.Channel);
 
-                    await message.ModifyAsync(embed);
-                    break;
-                case "backwardButton":
-                    embed = await GetEmbedByPage(ctx, postResult.ApiResponse, -1);
+        ctx.Client.ComponentInteractionCreated -= ButtonPressed;
+        ctx.Client.ComponentInteractionCreated += ButtonPressed;
+        return;
+
+        async Task ButtonPressed(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+        {
+            embed = await GetEmbedByPage(ctx, postResult.ApiResponse, e.Id == "forwardButton" ? 1 : 0);
                     
-                    if (embed is null)
-                    {
-                        return;
-                    }
-                    
-                    await message.ModifyAsync(embed);
-                    break;
+            if (embed is null)
+            {
+                return;
             }
-        };
+
+            await e.Message.ModifyAsync(embed);
+        }
     }
 
     private async Task<DiscordEmbed?> GetEmbedByPage(CommandContext ctx, NhentaiPost post, int changeBy = 0)
