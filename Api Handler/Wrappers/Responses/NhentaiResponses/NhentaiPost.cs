@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace Big_Seed_Bot.Api_Handler.Wrappers.Responses.NhentaiResponses;
@@ -23,13 +24,35 @@ public class NhentaiPost : IResponse
     public int UploadDate { get; set; }
 
     [JsonPropertyName("tags")]
-    public Tag?[] Tags { get; set; }
+    public Tag[]? Tags { get; set; }
 
     [JsonPropertyName("num_pages")]
-    public int NumPages { get; set; }
+    public int NumberOfPages { get; set; }
 
     [JsonPropertyName("num_favorites")]
-    public int NumFavorites { get; set; }
+    public int NumberOfFavorites { get; set; }
+    
+    private static string[] BannedTags =
+    [
+        "loli",
+        "rape",
+        "shota"
+    ];
+
+    private static string? _bannedSearchTags;
+
+    public static string GetBannedTags()
+    {
+        if (_bannedSearchTags is not null) return _bannedSearchTags;
+        StringBuilder bannedTags = new StringBuilder();
+        foreach (string tag in BannedTags)
+        {
+            bannedTags.Append('-');
+            bannedTags.Append(tag);
+            bannedTags.Append(' ');
+        }
+        return _bannedSearchTags = bannedTags.ToString();
+    }
 
     public string GetUrl()
     {
@@ -53,21 +76,16 @@ public class NhentaiPost : IResponse
 
     public bool ContainsBannedTag()
     {
-        string[] bannedTags =
-        [
-            "loli",
-            "rape"
-        ];
-
+        if (Tags == null) return false;
         foreach (Tag? tag in Tags)
         {
             if (tag?.Name is null) continue;
-            if (bannedTags.Any(bannedTagName => tag.Name.Contains(bannedTagName)))
+            if (BannedTags.Any(bannedTagName => tag.Name.Contains(bannedTagName)))
             {
                 return true;
             }
         }
-        
+
         return false;
     }
 }

@@ -14,105 +14,155 @@ namespace Big_Seed_Bot.Commands;
 public class NhentaiCommandModule : BaseCommandModule
 {
     private NhentaiClient _client = new NhentaiClient();
-    private int _desiredPageNumber = 1;
+
+    private DiscordButtonComponent _forwardButton = new DiscordButtonComponent(ButtonStyle.Primary, "backwardButton",
+        emoji: new DiscordComponentEmoji("👈"));
+    private DiscordButtonComponent _backwardButton =new DiscordButtonComponent(ButtonStyle.Primary, "forwardButton",
+        emoji: new DiscordComponentEmoji("👉"));
+    
+    private static readonly Dictionary<DiscordMessage, Reading> ActiveReadings = new Dictionary<DiscordMessage, Reading>();
 
     [Command("nhentai")]
     public async Task NhentaiGet(CommandContext ctx, int id)
     {
         Response<NhentaiPost> result = await _client.GetPostById(id);
-        
+
         if (result.ApiResponse is null)
         {
-            await ctx.Channel.SendMessageAsync(result.Error??"No Posts Found");
+            await ctx.Channel.SendMessageAsync(result.Error);
             return;
         }
 
         await ctx.Channel.SendMessageAsync(result.ApiResponse.GetUrl());
     }
 
-    [Command("read")]
-    public async Task NhentaiRead(CommandContext ctx, int id)
+    [Command("nsearch")]
+    public async Task NhentaiSearch(CommandContext ctx, params string[] query)
     {
-        Response<NhentaiPost> postResult = await _client.GetPostById(id);
+        Response<NhentaiPost> result = await _client.GetRandomPostBySearch(string.Join(" ", query));
+        if (result.ApiResponse is null) 
+        {
+            await ctx.Channel.SendMessageAsync(result.Error);
+            return;
+        }
         
+        await ctx.Channel.SendMessageAsync(result.ApiResponse.GetUrl());
+    }
+
+    [Command("read")]
+    public async Task NhentaiRead(CommandContext ctx, int id, int desiredPageNumber = 1)
+    {
+        ctx.Client.ComponentInteractionCreated -= ClientOnComponentInteractionCreated;
+        Response<NhentaiPost> postResult = await _client.GetPostById(id);
+
         if (postResult.ApiResponse is null)
         {
-            await ctx.Channel.SendMessageAsync(postResult.Error??"No Posts Found");
+            await ctx.Channel.SendMessageAsync(postResult.Error);
             return;
         }
 
-        if (postResult.ApiResponse.ContainsBannedTag())
+        Task<DiscordEmbed> embedTask = await GetEmbedByPage(postResult.ApiResponse, desiredPageNumber);
+
+        if (embedTask.Exception is not null)
         {
-            await ctx.Channel.SendMessageAsync("azt elhitted");
+            await ctx.Channel.SendMessageAsync(embedTask.Exception.Message);
             return;
         }
-        
-        _desiredPageNumber = 1;
-        DiscordEmbed? embed = await GetEmbedByPage(ctx, postResult.ApiResponse, id);
-        
-        if (embed is null)
-        {
-            await ctx.Channel.SendMessageAsync("valami szar");
-            return;
-        }
+
+        DiscordEmbed embed = embedTask.Result;
 
         DiscordMessageBuilder messageBuilder = new DiscordMessageBuilder()
             .AddEmbed(embed)
             .AddComponents(
-                new DiscordButtonComponent(ButtonStyle.Primary, "backwardButton",
-                    emoji: new DiscordComponentEmoji("👈")),
-                new DiscordButtonComponent(ButtonStyle.Primary, "forwardButton", 
-                    emoji: new DiscordComponentEmoji("👉"))
+                _forwardButton,
+                _backwardButton
             );
-        
-        await messageBuilder.SendAsync(ctx.Channel);
 
-        ctx.Client.ComponentInteractionCreated -= ButtonPressed;
-        ctx.Client.ComponentInteractionCreated += ButtonPressed;
-        return;
+        DiscordMessage message = await messageBuilder.SendAsync(ctx.Channel);
+        AddReading(message, new Reading(postResult.ApiResponse, desiredPageNumber));
 
-        async Task ButtonPressed(DiscordClient sender, ComponentInteractionCreateEventArgs e)
-        {
-            embed = await GetEmbedByPage(ctx, postResult.ApiResponse, e.Id == "forwardButton" ? 1 : 0);
-                    
-            if (embed is null)
-            {
-                return;
-            }
-
-            await e.Message.ModifyAsync(embed);
-        }
+        ctx.Client.ComponentInteractionCreated += ClientOnComponentInteractionCreated;
     }
 
-    private async Task<DiscordEmbed?> GetEmbedByPage(CommandContext ctx, NhentaiPost post, int changeBy = 0)
+    private async Task ClientOnComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
     {
-        _desiredPageNumber += changeBy;
-        if (_desiredPageNumber > post.NumPages) _desiredPageNumber = 1;
-        else if (_desiredPageNumber < 1) _desiredPageNumber = post.NumPages;
-        
-        
-        ImageType? desiredFormat = post.GetImageTypeOfPage(_desiredPageNumber);
+        Reading currentReading = ActiveReadings[e.Message];
+        int currentPageNumber = currentReading.Page;
+        int nextPageNumber = e.Id == "forwardButton" ? ++currentPageNumber : --currentPageNumber;
+
+        Task<DiscordEmbed> embedTask = await GetEmbedByPage(currentReading.Post, nextPageNumber);
+
+        if (embedTask.Exception is not null)
+        {
+            await e.Channel.SendMessageAsync(embedTask.Exception.Message);
+            return;
+        }
+
+        DiscordEmbed embed = embedTask.Result;
+
+        DiscordInteractionResponseBuilder responseBuilder = new DiscordInteractionResponseBuilder()
+            .AddEmbed(embed)
+            .AddComponents(
+                _forwardButton,
+                _backwardButton
+            );
+            
+        ActiveReadings[e.Message] = new Reading(currentReading.Post, CheckPageNumber(currentReading.Post, nextPageNumber));
+        await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, responseBuilder);
+    }
+
+    private async Task<Task<DiscordEmbed>> GetEmbedByPage(NhentaiPost post, int desiredPageNumber)
+    {
+        desiredPageNumber = CheckPageNumber(post, desiredPageNumber);
+        ImageType? desiredFormat = post.GetImageTypeOfPage(desiredPageNumber);
 
         if (desiredFormat is null)
         {
-            await ctx.Channel.SendMessageAsync("wrong format");
-            return null;
+            return Task.FromException<DiscordEmbed>(new Exception("Wrong page number"));
         }
-        
-        Response<NhentaiImage> result = await _client.GetImage(post.MediaId??"", _desiredPageNumber, desiredFormat);
-        
-        if (result.ApiResponse is null) 
+
+        Response<NhentaiImage> result = await _client.GetImage(post.MediaId ?? "", desiredPageNumber, desiredFormat);
+
+        if (result.ApiResponse is null)
         {
-            await ctx.Channel.SendMessageAsync(result.Error ?? "Error");
-            return null;
+            return Task.FromException<DiscordEmbed>(new Exception("no response"));
         }
 
         DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
-            .WithTitle(post.Title?.Pretty ?? "") 
+            .WithTitle(post.Title?.Pretty ?? "")
             .WithImageUrl(result.ApiResponse.GetUrl())
-            .WithDescription(post.GetUrl()) 
-            .AddField(new DiscordEmbedField("Page:", _desiredPageNumber.ToString()));
+            .WithDescription(post.GetUrl())
+            .AddField(new DiscordEmbedField("Page:", desiredPageNumber.ToString()));
 
-        return embed.Build();
+        return Task.FromResult(embed.Build());
     }
+
+    ///returns the desired page number, 1 if it's over the max, and the last if it's less than 1
+    /// otherwise doesn't change
+    private int CheckPageNumber(NhentaiPost post, int desiredPageNumber)
+    {
+        if (desiredPageNumber > post.NumberOfPages) return 1;
+
+        return desiredPageNumber < 1 ? post.NumberOfPages : desiredPageNumber;
+    }
+
+    private void AddReading(DiscordMessage message, Reading reading)
+    {
+        if (ActiveReadings.TryAdd(message, reading)) return;
+        ActiveReadings[message] = reading;
+    }
+
+
+    private struct Reading
+    {
+        public NhentaiPost Post;
+        public int Page;
+
+        public Reading(NhentaiPost post, int page)
+        {
+            Post = post;
+            Page = page;
+        }
+    }
+
 }

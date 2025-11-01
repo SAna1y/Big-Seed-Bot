@@ -3,7 +3,7 @@ namespace Big_Seed_Bot.Api_Handler.Wrappers.Responses.NhentaiResponses;
 public class NhentaiImage : IResponse
 {
     private string Path { get; set; }
-    public byte[] ImageData { get; private set; }
+    private byte[] ImageData { get;  set; }
 
     public ImageType Format;
 
@@ -18,10 +18,9 @@ public class NhentaiImage : IResponse
         return Path;
     }
 
-    public async Task<MemoryStream> GetStreamAsync()
+    public MemoryStream GetStream()
     {
         MemoryStream ms = new MemoryStream(ImageData);
-        await ms.FlushAsync();
         return ms;
     } 
 }

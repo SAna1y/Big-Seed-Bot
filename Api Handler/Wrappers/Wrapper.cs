@@ -24,11 +24,11 @@ public abstract class Wrapper : IDisposable
         {
             string responseBody = await get(url); 
             T? root = JsonSerializer.Deserialize<T>(responseBody);
-            result = new Response<T>(root, null,  url);
+            result = new Response<T>(root, url) {Error = string.Empty};
         }
         catch (HttpRequestException e)
         {
-            result = new Response<T>(null, e.Message, url);
+            result = new Response<T>(null, url) {Error = e.Message};
         }
         
         result.Log();

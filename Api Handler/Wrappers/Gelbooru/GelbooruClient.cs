@@ -40,7 +40,12 @@ public class GelbooruClient : Wrapper
         tags = $"sort:random {BaseTags} {GetUpdatedSearchString(searchWords)}";
         uri = new Uri(BaseUrl,$"{UrlExtension}page=dapi&s=post&q=index{_authenticationUrl}&limit=1&json=1&tags={tags}");
         
-        post = await Get<GelbooruPostRoot>(Client.GetStringAsync, uri.AbsoluteUri);;
+        post = await Get<GelbooruPostRoot>(Client.GetStringAsync, uri.AbsoluteUri);
+        
+        if (post.ApiResponse is { Posts: null})
+        {
+            post.Error = "no post found";
+        }
         
         return post;
     }

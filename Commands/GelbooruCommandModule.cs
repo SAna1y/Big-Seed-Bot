@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses.GelbooruResponses;
@@ -20,7 +21,7 @@ public class GelbooruCommandModule : BaseCommandModule
         Response<GelbooruPostRoot> result = await _client.GetRandomPost(searchText);
         _lastResult = result;
         
-        if (result.ApiResponse is null)
+        if (result.ApiResponse?.Posts is null)
         {
             await ctx.Channel.SendMessageAsync("error: " + result.Error);
             return;
@@ -34,7 +35,7 @@ public class GelbooruCommandModule : BaseCommandModule
     {
         if (_lastResult.ApiResponse?.Posts is null)
         {
-            await ctx.Channel.SendMessageAsync(_lastResult.Error??"No post found!");
+            await ctx.Channel.SendMessageAsync(_lastResult.Error);
             return;
         }
 
