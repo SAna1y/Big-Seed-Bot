@@ -15,10 +15,12 @@ public class NhentaiCommandModule : BaseCommandModule
 {
     private NhentaiClient _client = new NhentaiClient();
 
-    private DiscordButtonComponent _forwardButton = new DiscordButtonComponent(ButtonStyle.Primary, "backwardButton",
-        emoji: new DiscordComponentEmoji("👈"));
-    private DiscordButtonComponent _backwardButton =new DiscordButtonComponent(ButtonStyle.Primary, "forwardButton",
-        emoji: new DiscordComponentEmoji("👉"));
+    private DiscordButtonComponent _forwardButton = 
+        new DiscordButtonComponent(ButtonStyle.Primary, "backwardButton", emoji: new DiscordComponentEmoji("👈"));
+    private DiscordButtonComponent _backwardButton = 
+        new DiscordButtonComponent(ButtonStyle.Primary, "forwardButton", emoji: new DiscordComponentEmoji("👉"));
+    private DiscordButtonComponent _readButton =
+        new DiscordButtonComponent(ButtonStyle.Success, "readButton", "Read");
     
     private static readonly Dictionary<DiscordMessage, Reading> ActiveReadings = new Dictionary<DiscordMessage, Reading>();
 
@@ -37,16 +39,34 @@ public class NhentaiCommandModule : BaseCommandModule
     }
 
     [Command("nsearch")]
-    public async Task NhentaiSearch(CommandContext ctx, params string[] query)
+    public async Task NhentaiSearch(CommandContext ctx, [RemainingText] string query)
     {
-        Response<NhentaiPost> result = await _client.GetRandomPostBySearch(string.Join(" ", query));
+        ctx.Client.ComponentInteractionCreated -= ReadButtonPressed;
+        
+        Response<NhentaiPost> result = await _client.GetRandomPostBySearch(query);
         if (result.ApiResponse is null) 
         {
             await ctx.Channel.SendMessageAsync(result.Error);
             return;
         }
         
-        await ctx.Channel.SendMessageAsync(result.ApiResponse.GetUrl());
+        DiscordMessageBuilder builder = new DiscordMessageBuilder()
+            .AddComponents(_readButton)
+            .WithContent(result.ApiResponse.GetUrl());
+        
+        AddReading(await builder.SendAsync(ctx.Channel), new Reading(result.ApiResponse, 1));
+
+        ctx.Client.ComponentInteractionCreated += ReadButtonPressed;
+        return;
+
+        async Task ReadButtonPressed(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+        {
+            if (e.Id != "readButton") return;
+
+            Reading currentReading = ActiveReadings[e.Message];
+            await NhentaiRead(ctx, int.TryParse(currentReading.Post.Id!.ToString(), out int id) ? id : 0);
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Have fun :3"));
+        }
     }
 
     [Command("read")]

@@ -42,6 +42,7 @@ public class NhentaiClient : Wrapper
 
     public async Task<Response<NhentaiPost>> GetRandomPostBySearch(string query)
     {
+        query = $"{query} {NhentaiPost.GetBannedTags()}";
         Response<NhentaiBrowseResponse> result = await GetPostsBySearch(query);
         
         switch (result.ApiResponse)
@@ -58,11 +59,11 @@ public class NhentaiClient : Wrapper
         
         int maxPostCount = (result.ApiResponse.NumberOfPages-1)*result.ApiResponse.ResultsPerPage + lastPageCount;
         
-        Random random = new Random();
-        int rng = random.Next(maxPostCount);
-        
-        int paginateRngPage = rng % result.ApiResponse.ResultsPerPage == 0 ? rng / result.ApiResponse.ResultsPerPage : rng / result.ApiResponse.ResultsPerPage + 1;
-        int paginateRngPost = rng % result.ApiResponse.ResultsPerPage == 0 ? result.ApiResponse.ResultsPerPage : rng % result.ApiResponse.ResultsPerPage;
+        int rng = Program.rng.Next(1, maxPostCount+1);
+
+        bool isLastPost = rng % result.ApiResponse.ResultsPerPage == 0;
+        int paginateRngPage = isLastPost ? rng / result.ApiResponse.ResultsPerPage : rng / result.ApiResponse.ResultsPerPage + 1;
+        int paginateRngPost = isLastPost ? result.ApiResponse.ResultsPerPage : rng % result.ApiResponse.ResultsPerPage;
         
         Response<NhentaiBrowseResponse> randomPage = await GetPostsBySearch(query, paginateRngPage);
         switch (randomPage.ApiResponse)
@@ -73,7 +74,7 @@ public class NhentaiClient : Wrapper
                 return new Response<NhentaiPost>(null, randomPage.Path) { Error = randomPage.Error };
         }
         
-        NhentaiPost randomPost = randomPage.ApiResponse.Posts[paginateRngPost];
+        NhentaiPost randomPost = randomPage.ApiResponse.Posts[paginateRngPost-1];
         return randomPost.ContainsBannedTag() ? new Response<NhentaiPost>(null, randomPage.Path) { Error = "Post contained a banned tag" } 
             : new Response<NhentaiPost>(randomPost, randomPage.Path) { Error = "" };
     }

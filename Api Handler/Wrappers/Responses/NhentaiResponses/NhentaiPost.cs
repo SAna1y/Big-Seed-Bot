@@ -6,7 +6,7 @@ namespace Big_Seed_Bot.Api_Handler.Wrappers.Responses.NhentaiResponses;
 public class NhentaiPost : IResponse
 {
     [JsonPropertyName("id")]
-    public int Id { get; set; }
+    public object? Id { get; set; }
 
     [JsonPropertyName("media_id")]
     public string? MediaId { get; set; }

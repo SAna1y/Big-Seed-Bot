@@ -26,7 +26,7 @@ public abstract class Wrapper : IDisposable
             T? root = JsonSerializer.Deserialize<T>(responseBody);
             result = new Response<T>(root, url) {Error = string.Empty};
         }
-        catch (HttpRequestException e)
+        catch (Exception e)
         {
             result = new Response<T>(null, url) {Error = e.Message};
         }

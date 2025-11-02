@@ -15,6 +15,7 @@ internal class Program
     private static readonly string? APIKey = _env?["GELBOORUKEY"];
     private static readonly string? UserID = _env?["GELBOORUID"];
 
+    public static Random rng = new Random();
     public static Authenticator _gelbooruAuth {get; private set;}
     
     private static void Main(string[] args)
