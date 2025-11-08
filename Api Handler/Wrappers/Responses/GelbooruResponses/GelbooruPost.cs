@@ -12,7 +12,12 @@ public class GelbooruPostRoot : IResponse
     
     public string GetUrl()
     {
-        return Posts?[0].FileUrl?? "";
+        return $"https://gelbooru.com/index.php?page=post&s=view&id={Posts?[0].Id}";
+    }
+    
+    public string GetFileUrl()
+    {
+        return Posts?[0].FileUrl??"";
     }
 }
 

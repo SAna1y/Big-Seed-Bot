@@ -1,10 +1,13 @@
 ﻿using Big_Seed_Bot.Api_Handler.GelbooruWrapper;
 using Big_Seed_Bot.Commands;
+using Big_Seed_Bot.Commands.CommandUtils;
 using Big_Seed_Bot.Utils;
 using DisCatSharp;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using DisCatSharp.EventArgs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Big_Seed_Bot;
 
@@ -38,21 +41,32 @@ internal class Program
             Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContent
         });
         
-        CommandsSetup(discord);
+        ServiceProvider services = new ServiceCollection()
+            .AddSingleton<CommandService>()
+            .BuildServiceProvider();
+        
+        CommandsSetup(discord, services);
+        
+        discord.ComponentInteractionCreated += DiscordOnComponentInteractionCreated;
         await discord.ConnectAsync();
         await discord.UpdateStatusAsync(activity: new DiscordActivity("activity", ActivityType.Custom) {Name = "planting flowers"});
         
         await Task.Delay(-1);
     }
 
-    private static void CommandsSetup(DiscordClient discord)
+    private static void CommandsSetup(DiscordClient discord, ServiceProvider services)
     {
         CommandsNextExtension commands = discord.UseCommandsNext(new CommandsNextConfiguration() {
-            StringPrefixes = ["."]
+            StringPrefixes = ["."],
+            ServiceProvider = services
         });
         
         commands.RegisterCommands<UserCommandModule>();
         commands.RegisterCommands<GelbooruCommandModule>();
         commands.RegisterCommands<NhentaiCommandModule>();
+    }
+    private static async Task DiscordOnComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+    {
+        await EventHandlerUtil.RaiseDiscordButtonPressedEvent(sender, e);
     }
 }

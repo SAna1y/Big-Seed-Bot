@@ -1,57 +1,73 @@
-using System.Diagnostics;
 using Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses.GelbooruResponses;
+using Big_Seed_Bot.Commands.CommandUtils;
+using Big_Seed_Bot.Utils;
+using DisCatSharp;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
+using DisCatSharp.Enums;
+using DisCatSharp.EventArgs;
 
 namespace Big_Seed_Bot.Commands;
 
 public class GelbooruCommandModule : BaseCommandModule
 {
-    private Response<GelbooruPostRoot> _lastResult;
-    private DiscordMessage? _lastMessage;
     private GelbooruClient _client = new GelbooruClient(Program._gelbooruAuth);
     
+    private readonly DiscordButtonComponent _deleteGelbooruPostButton = new DiscordButtonComponent(ButtonStyle.Danger, "deleteButton", "DELETE");
+    private readonly ButtonActionHandler _buttonActionHandler;
+    public CommandService CommandService {private get; set; }
+
+
+    public GelbooruCommandModule()
+    {
+        EventHandlerUtil.DiscordButtonPressed += OnButtonPressed;
+
+        _buttonActionHandler = new ButtonActionHandler((_deleteGelbooruPostButton, OnDeleteButtonPressed));
+    }
+
     [Command("goon")]
     public async Task GelbooruGetPostCommand(CommandContext ctx, params string[] searchText)
     {
         
         Response<GelbooruPostRoot> result = await _client.GetRandomPost(searchText);
-        _lastResult = result;
         
         if (result.ApiResponse?.Posts is null)
         {
             await ctx.Channel.SendMessageAsync("error: " + result.Error);
             return;
         }
+
+        DiscordLinkButtonComponent linkButton = new DiscordLinkButtonComponent(result.ApiResponse.GetUrl(), "gyat");
         
-        _lastMessage = await ctx.Channel.SendMessageAsync(result.ApiResponse.GetUrl());
+        DiscordMessageBuilder messageBuilder = new DiscordMessageBuilder()
+            .WithContent(result.ApiResponse.GetFileUrl())
+            .AddComponents(linkButton, _deleteGelbooruPostButton);
+        
+        
+        CommandService.AddService(await messageBuilder.SendAsync(ctx.Channel), CommandService.BuildResponseContext(ctx, result.ApiResponse));
+    }
+    
+    private async Task OnButtonPressed(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+    {
+        if (!_buttonActionHandler.ButtonActions.TryGetValue(e.Id, out ButtonActionHandler.ButtonActionDelegate? function)) return;
+        await function(sender, e);
     }
 
-    [Command("link")]
-    public async Task GelbooruGetLastPostLink(CommandContext ctx)
+    private async Task OnDeleteButtonPressed(DiscordClient sender, ComponentInteractionCreateEventArgs e)
     {
-        if (_lastResult.ApiResponse?.Posts is null)
+        CommandService.ResponseContext current = CommandService.GetResponseContext(e.Message);
+        if (current.Context is not null && current.Context.User.Id != e.User.Id) return;
+
+        if (current.Context is not null && current.Context.Client.Guilds.TryGetValue(e.Guild.Id, out DiscordGuild? guild) && guild.Permissions is not null)
         {
-            await ctx.Channel.SendMessageAsync(_lastResult.Error);
-            return;
+            if (((Permissions)guild.Permissions).HasPermission(Permissions.ManageMessages))
+                await current.Context.Message.DeleteAsync();
         }
-
-        string link = $"https://gelbooru.com/index.php?page=post&s=view&id={_lastResult.ApiResponse.Posts[0].Id}";
-        await ctx.Channel.SendMessageAsync($"<{link}>");
-    }
-
-    [Command("delete")]
-    public async Task DeleteLastPost(CommandContext ctx)
-    {
-        if (_lastMessage is null)
-        {
-            await ctx.Channel.SendMessageAsync("No post found!");
-            return;
-        }
-
-        await _lastMessage.DeleteAsync();
+        
+        await e.Message.DeleteAsync();
+        await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
     }
 }

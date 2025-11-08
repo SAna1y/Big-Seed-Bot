@@ -8,11 +8,16 @@ public static class DotEnvReader
         {
             return null;
         }
-
-        Dictionary<string, string> env = File.ReadAllLines(envFile)
-            .Select(line => line.Split('=', StringSplitOptions.RemoveEmptyEntries))
-            .Where(split => split.Length == 2)
-            .ToDictionary(split => split[0], split => split[1]);
+        Dictionary<string, string> env = new Dictionary<string, string>();
+        string[] lines = File.ReadAllLines(envFile);
+        foreach (string line in lines)
+        {
+            if (line.StartsWith('#') || string.IsNullOrWhiteSpace(line)) continue;
+            
+            string[] split = line.Split('=', StringSplitOptions.RemoveEmptyEntries);
+            if (split.Length != 2) continue;
+            env.Add(split[0], split[1]);
+        }
         
         return env;
     }

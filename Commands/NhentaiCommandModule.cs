@@ -1,6 +1,8 @@
 using Big_Seed_Bot.Api_Handler.Wrappers.Nhentai;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses.NhentaiResponses;
+using Big_Seed_Bot.Commands.CommandUtils;
+using Big_Seed_Bot.Utils;
 using DisCatSharp;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
@@ -15,14 +17,26 @@ public class NhentaiCommandModule : BaseCommandModule
 {
     private NhentaiClient _client = new NhentaiClient();
 
-    private DiscordButtonComponent _forwardButton = 
+    private readonly DiscordButtonComponent _backwardButton =
         new DiscordButtonComponent(ButtonStyle.Primary, "backwardButton", emoji: new DiscordComponentEmoji("👈"));
-    private DiscordButtonComponent _backwardButton = 
+
+    private readonly DiscordButtonComponent _forwardButton =
         new DiscordButtonComponent(ButtonStyle.Primary, "forwardButton", emoji: new DiscordComponentEmoji("👉"));
-    private DiscordButtonComponent _readButton =
+
+    private readonly DiscordButtonComponent _readButton =
         new DiscordButtonComponent(ButtonStyle.Success, "readButton", "Read");
     
-    private static readonly Dictionary<DiscordMessage, Reading> ActiveReadings = new Dictionary<DiscordMessage, Reading>();
+    private readonly ButtonActionHandler _buttonActionHandler;
+    public CommandService CommandService {private get; set; }
+
+    public NhentaiCommandModule()
+    {
+        EventHandlerUtil.DiscordButtonPressed += OnDiscordButtonPressed;
+        
+        _buttonActionHandler = new ButtonActionHandler((_readButton, OnReadButtonPressed),
+            (_forwardButton, OnTurnerButtonPressed),
+            (_backwardButton, OnTurnerButtonPressed));
+    }
 
     [Command("nhentai")]
     public async Task NhentaiGet(CommandContext ctx, int id)
@@ -41,47 +55,32 @@ public class NhentaiCommandModule : BaseCommandModule
     [Command("nsearch")]
     public async Task NhentaiSearch(CommandContext ctx, [RemainingText] string query)
     {
-        ctx.Client.ComponentInteractionCreated -= ReadButtonPressed;
-        
         Response<NhentaiPost> result = await _client.GetRandomPostBySearch(query);
-        if (result.ApiResponse is null) 
+        if (result.ApiResponse is null)
         {
             await ctx.Channel.SendMessageAsync(result.Error);
             return;
         }
-        
+
         DiscordMessageBuilder builder = new DiscordMessageBuilder()
             .AddComponents(_readButton)
             .WithContent(result.ApiResponse.GetUrl());
-        
-        AddReading(await builder.SendAsync(ctx.Channel), new Reading(result.ApiResponse, 1));
 
-        ctx.Client.ComponentInteractionCreated += ReadButtonPressed;
-        return;
-
-        async Task ReadButtonPressed(DiscordClient sender, ComponentInteractionCreateEventArgs e)
-        {
-            if (e.Id != "readButton") return;
-
-            Reading currentReading = ActiveReadings[e.Message];
-            await NhentaiRead(ctx, int.TryParse(currentReading.Post.Id!.ToString(), out int id) ? id : 0);
-            await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Have fun :3"));
-        }
+        CommandService.AddService(await builder.SendAsync(ctx.Channel), CommandService.BuildResponseContext(ctx, result.ApiResponse, 1));
     }
 
     [Command("read")]
     public async Task NhentaiRead(CommandContext ctx, int id, int desiredPageNumber = 1)
     {
-        ctx.Client.ComponentInteractionCreated -= ClientOnComponentInteractionCreated;
-        Response<NhentaiPost> postResult = await _client.GetPostById(id);
+        Response<NhentaiPost> result = await _client.GetPostById(id);
 
-        if (postResult.ApiResponse is null)
+        if (result.ApiResponse is null)
         {
-            await ctx.Channel.SendMessageAsync(postResult.Error);
+            await ctx.Channel.SendMessageAsync(result.Error);
             return;
         }
 
-        Task<DiscordEmbed> embedTask = await GetEmbedByPage(postResult.ApiResponse, desiredPageNumber);
+        Task<DiscordEmbed> embedTask = await GetEmbedByPage(result.ApiResponse, desiredPageNumber);
 
         if (embedTask.Exception is not null)
         {
@@ -94,41 +93,13 @@ public class NhentaiCommandModule : BaseCommandModule
         DiscordMessageBuilder messageBuilder = new DiscordMessageBuilder()
             .AddEmbed(embed)
             .AddComponents(
-                _forwardButton,
-                _backwardButton
+                _backwardButton,
+                _forwardButton
             );
 
         DiscordMessage message = await messageBuilder.SendAsync(ctx.Channel);
-        AddReading(message, new Reading(postResult.ApiResponse, desiredPageNumber));
-
-        ctx.Client.ComponentInteractionCreated += ClientOnComponentInteractionCreated;
-    }
-
-    private async Task ClientOnComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
-    {
-        Reading currentReading = ActiveReadings[e.Message];
-        int currentPageNumber = currentReading.Page;
-        int nextPageNumber = e.Id == "forwardButton" ? ++currentPageNumber : --currentPageNumber;
-
-        Task<DiscordEmbed> embedTask = await GetEmbedByPage(currentReading.Post, nextPageNumber);
-
-        if (embedTask.Exception is not null)
-        {
-            await e.Channel.SendMessageAsync(embedTask.Exception.Message);
-            return;
-        }
-
-        DiscordEmbed embed = embedTask.Result;
-
-        DiscordInteractionResponseBuilder responseBuilder = new DiscordInteractionResponseBuilder()
-            .AddEmbed(embed)
-            .AddComponents(
-                _forwardButton,
-                _backwardButton
-            );
-            
-        ActiveReadings[e.Message] = new Reading(currentReading.Post, CheckPageNumber(currentReading.Post, nextPageNumber));
-        await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, responseBuilder);
+        
+        CommandService.AddService(message, CommandService.BuildResponseContext(ctx, result.ApiResponse, desiredPageNumber));
     }
 
     private async Task<Task<DiscordEmbed>> GetEmbedByPage(NhentaiPost post, int desiredPageNumber)
@@ -156,6 +127,51 @@ public class NhentaiCommandModule : BaseCommandModule
 
         return Task.FromResult(embed.Build());
     }
+    
+    private async Task OnDiscordButtonPressed(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+    {
+        if (!_buttonActionHandler.ButtonActions.TryGetValue(e.Id, out ButtonActionHandler.ButtonActionDelegate? function)) return;
+        await function(sender, e);
+    }
+
+    private async Task OnReadButtonPressed(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+    {
+        CommandService.ResponseContext current = CommandService.GetResponseContext(e.Message);
+        if (current.Post is not NhentaiPost post) return;
+
+        await NhentaiRead(current.Context, int.TryParse(post.Id!.ToString(), out int id) ? id : 0);
+        await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
+            new DiscordInteractionResponseBuilder().WithContent("Have fun :3"));
+    }
+    
+    private async Task OnTurnerButtonPressed(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+    {
+        CommandService.ResponseContext current = CommandService.GetResponseContext(e.Message);
+        if (current.Post is not NhentaiPost post) return;
+        
+        int currentPageNumber = current.Page;
+        int nextPageNumber = e.Id == "forwardButton" ? ++currentPageNumber : --currentPageNumber;
+
+        Task<DiscordEmbed> embedTask = await GetEmbedByPage(post, nextPageNumber);
+
+        if (embedTask.Exception is not null)
+        {
+            await e.Channel.SendMessageAsync(embedTask.Exception.Message);
+            return;
+        }
+
+        DiscordEmbed embed = embedTask.Result;
+
+        DiscordInteractionResponseBuilder responseBuilder = new DiscordInteractionResponseBuilder()
+            .AddEmbed(embed)
+            .AddComponents(
+                _backwardButton,
+                _forwardButton
+            );
+
+        CommandService.AddService(e.Message, CommandService.BuildResponseContext(current.Context, post, CheckPageNumber(post, nextPageNumber)));
+        await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, responseBuilder);
+    }
 
     ///returns the desired page number, 1 if it's over the max, and the last if it's less than 1
     /// otherwise doesn't change
@@ -165,24 +181,4 @@ public class NhentaiCommandModule : BaseCommandModule
 
         return desiredPageNumber < 1 ? post.NumberOfPages : desiredPageNumber;
     }
-
-    private void AddReading(DiscordMessage message, Reading reading)
-    {
-        if (ActiveReadings.TryAdd(message, reading)) return;
-        ActiveReadings[message] = reading;
-    }
-
-
-    private struct Reading
-    {
-        public NhentaiPost Post;
-        public int Page;
-
-        public Reading(NhentaiPost post, int page)
-        {
-            Post = post;
-            Page = page;
-        }
-    }
-
 }
