@@ -17,13 +17,11 @@ public class NhentaiClient : Wrapper
     {
         Uri uri =  new Uri(_baseUrlById, id.ToString());
         Response<NhentaiPost> result = await Get<NhentaiPost>(Client.GetStringAsync, uri.AbsoluteUri);
-        
-        if (result.ApiResponse is not null && result.ApiResponse.ContainsBannedTag())
-        {
-            result.Error = "Post contained a banned tag";
-            result.DisableResponse();
-        }
-        
+
+        if (result.ApiResponse is null || !result.ApiResponse.ContainsBannedTag()) return result;
+        result.Error = "Post contained a banned tag";
+        result.DisableResponse();
+
         return result;
     }
 

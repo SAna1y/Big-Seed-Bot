@@ -1,427 +1,864 @@
-public class RootObject
+using System.Text.Json.Serialization;
+
+namespace Big_Seed_Bot.Api_Handler.Wrappers.Responses.PokemonResponses;
+
+public class PokemonResponse : IResponse
 {
-    public Abilities[] abilities { get; set; }
-    public int base_experience { get; set; }
-    public Cries cries { get; set; }
-    public Forms[] forms { get; set; }
-    public Game_indices[] game_indices { get; set; }
-    public int height { get; set; }
-    public object[] held_items { get; set; }
-    public int id { get; set; }
-    public bool is_default { get; set; }
-    public string location_area_encounters { get; set; }
-    public Moves[] moves { get; set; }
-    public string name { get; set; }
-    public int order { get; set; }
-    public Past_abilities[] past_abilities { get; set; }
-    public object[] past_types { get; set; }
-    public Species species { get; set; }
-    public Sprites sprites { get; set; }
-    public Stats[] stats { get; set; }
-    public Types[] types { get; set; }
-    public int weight { get; set; }
+	[JsonPropertyName("abilities")]
+	public Abilities[] Abilities { get; set; }
+
+	[JsonPropertyName("base_experience")]
+	public int BaseExperience { get; set; }
+
+	[JsonPropertyName("cries")]
+	public Cries Cries { get; set; }
+
+	[JsonPropertyName("forms")]
+	public Forms[] Forms { get; set; }
+
+	[JsonPropertyName("game_indices")]
+	public Game_indices[] GameIndices { get; set; }
+
+	[JsonPropertyName("height")]
+	public int Height { get; set; }
+
+	[JsonPropertyName("held_items")]
+	public object[] HeldItems { get; set; }
+
+	[JsonPropertyName("id")]
+	public int Id { get; set; }
+
+	[JsonPropertyName("is_default")]
+	public bool IsDefault { get; set; }
+
+	[JsonPropertyName("location_area_encounters")]
+	public string LocationAreaEncounters { get; set; }
+
+	[JsonPropertyName("moves")]
+	public Moves[] Moves { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("order")]
+	public int Order { get; set; }
+
+	[JsonPropertyName("past_abilities")]
+	public Past_abilities[] PastAbilities { get; set; }
+
+	[JsonPropertyName("past_types")]
+	public object[] PastTypes { get; set; }
+
+	[JsonPropertyName("species")]
+	public Species Species { get; set; }
+
+	[JsonPropertyName("sprites")]
+	public Sprites Sprites { get; set; }
+
+	[JsonPropertyName("stats")]
+	public Stats[] Stats { get; set; }
+
+	[JsonPropertyName("types")]
+	public Types[] Types { get; set; }
+
+	[JsonPropertyName("weight")]
+	public int Weight { get; set; }
+	
+	public string GetUrl()
+	{
+		throw new NotImplementedException();
+	}
 }
 
 public class Abilities
 {
-    public Ability ability { get; set; }
-    public bool is_hidden { get; set; }
-    public int slot { get; set; }
+	[JsonPropertyName("ability")]
+	public Ability Ability { get; set; }
+
+	[JsonPropertyName("is_hidden")]
+	public bool IsHidden { get; set; }
+
+	[JsonPropertyName("slot")]
+	public int Slot { get; set; }
+
 }
 
 public class Ability
 {
-    public string name { get; set; }
-    public string url { get; set; }
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
 }
 
 public class Cries
 {
-    public string latest { get; set; }
-    public string legacy { get; set; }
+	[JsonPropertyName("latest")]
+	public string Latest { get; set; }
+
+	[JsonPropertyName("legacy")]
+	public string Legacy { get; set; }
+
 }
 
 public class Forms
 {
-    public string name { get; set; }
-    public string url { get; set; }
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
 }
 
 public class Game_indices
 {
-    public int game_index { get; set; }
-    public Version version { get; set; }
+	[JsonPropertyName("game_index")]
+	public int GameIndex { get; set; }
+
+	[JsonPropertyName("version")]
+	public Version Version { get; set; }
+
 }
 
 public class Version
 {
-    public string name { get; set; }
-    public string url { get; set; }
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
 }
 
 public class Moves
 {
-    public Move move { get; set; }
-    public Version_group_details[] version_group_details { get; set; }
+	[JsonPropertyName("move")]
+	public Move Move { get; set; }
+
+	[JsonPropertyName("version_group_details")]
+	public Version_group_details[] VersionGroupDetails { get; set; }
+
 }
 
 public class Move
 {
-    public string name { get; set; }
-    public string url { get; set; }
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
 }
 
 public class Version_group_details
 {
-    public int level_learned_at { get; set; }
-    public Move_learn_method move_learn_method { get; set; }
-    public int? order { get; set; }
-    public Version_group version_group { get; set; }
+	[JsonPropertyName("level_learned_at")]
+	public int LevelLearnedAt { get; set; }
+
+	[JsonPropertyName("move_learn_method")]
+	public Move_learn_method MoveLearnMethod { get; set; }
+
+	[JsonPropertyName("order")]
+	public int? Order { get; set; }
+
+	[JsonPropertyName("version_group")]
+	public Version_group VersionGroup { get; set; }
+
 }
 
 public class Move_learn_method
 {
-    public string name { get; set; }
-    public string url { get; set; }
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
 }
 
 public class Version_group
 {
-    public string name { get; set; }
-    public string url { get; set; }
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
 }
 
 public class Past_abilities
 {
-    public Abilities1[] abilities { get; set; }
-    public Generation generation { get; set; }
+	[JsonPropertyName("abilities")]
+	public Abilities1[] Abilities { get; set; }
+
+	[JsonPropertyName("generation")]
+	public Generation Generation { get; set; }
+
 }
 
 public class Abilities1
 {
-    public object ability { get; set; }
-    public bool is_hidden { get; set; }
-    public int slot { get; set; }
+	[JsonPropertyName("ability")]
+	public object Ability { get; set; }
+
+	[JsonPropertyName("is_hidden")]
+	public bool IsHidden { get; set; }
+
+	[JsonPropertyName("slot")]
+	public int Slot { get; set; }
+
 }
 
 public class Generation
 {
-    public string name { get; set; }
-    public string url { get; set; }
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
 }
 
 public class Species
 {
-    public string name { get; set; }
-    public string url { get; set; }
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
 }
 
 public class Sprites
 {
-    public string back_default { get; set; }
-    public object back_female { get; set; }
-    public string back_shiny { get; set; }
-    public object back_shiny_female { get; set; }
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
-    public Other other { get; set; }
-    public Versions versions { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_female")]
+	public object BackFemale { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("back_shiny_female")]
+	public object BackShinyFemale { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
+	[JsonPropertyName("other")]
+	public Other Other { get; set; }
+
+	[JsonPropertyName("versions")]
+	public Versions Versions { get; set; }
+
 }
 
 public class Other
 {
-    public Dream_world dream_world { get; set; }
-    public Home home { get; set; }
-    public Official_artwork official_artwork { get; set; }
-    public Showdown showdown { get; set; }
+	[JsonPropertyName("dream_world")]
+	public Dream_world DreamWorld { get; set; }
+
+	[JsonPropertyName("home")]
+	public Home Home { get; set; }
+
+	[JsonPropertyName("official_artwork")]
+	public Official_artwork OfficialArtwork { get; set; }
+
+	[JsonPropertyName("showdown")]
+	public Showdown Showdown { get; set; }
+
 }
 
 public class Dream_world
 {
-    public string front_default { get; set; }
-    public object front_female { get; set; }
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
 }
 
 public class Home
 {
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
 }
 
 public class Official_artwork
 {
-    public string front_default { get; set; }
-    public string front_shiny { get; set; }
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
 }
 
 public class Showdown
 {
-    public string back_default { get; set; }
-    public object back_female { get; set; }
-    public string back_shiny { get; set; }
-    public object back_shiny_female { get; set; }
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_female")]
+	public object BackFemale { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("back_shiny_female")]
+	public object BackShinyFemale { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
 }
 
 public class Versions
 {
-    public Generation_i generation_i { get; set; }
-    public Generation_ii generation_ii { get; set; }
-    public Generation_iii generation_iii { get; set; }
-    public Generation_iv generation_iv { get; set; }
-    public Generation_v generation_v { get; set; }
-    public Generation_vi generation_vi { get; set; }
-    public Generation_vii generation_vii { get; set; }
-    public Generation_viii generation_viii { get; set; }
+	[JsonPropertyName("generation_i")]
+	public Generation_i GenerationI { get; set; }
+
+	[JsonPropertyName("generation_ii")]
+	public Generation_ii GenerationIi { get; set; }
+
+	[JsonPropertyName("generation_iii")]
+	public Generation_iii GenerationIii { get; set; }
+
+	[JsonPropertyName("generation_iv")]
+	public Generation_iv GenerationIv { get; set; }
+
+	[JsonPropertyName("generation_v")]
+	public Generation_v GenerationV { get; set; }
+
+	[JsonPropertyName("generation_vi")]
+	public Generation_vi GenerationVi { get; set; }
+
+	[JsonPropertyName("generation_vii")]
+	public Generation_vii GenerationVii { get; set; }
+
+	[JsonPropertyName("generation_viii")]
+	public Generation_viii GenerationViii { get; set; }
+
 }
 
 public class Generation_i
 {
-    public Red_blue red_blue { get; set; }
-    public Yellow yellow { get; set; }
+	[JsonPropertyName("red_blue")]
+	public Red_blue RedBlue { get; set; }
+
+	[JsonPropertyName("yellow")]
+	public Yellow Yellow { get; set; }
+
 }
 
 public class Red_blue
 {
-    public string back_default { get; set; }
-    public string back_gray { get; set; }
-    public string back_transparent { get; set; }
-    public string front_default { get; set; }
-    public string front_gray { get; set; }
-    public string front_transparent { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_gray")]
+	public string BackGray { get; set; }
+
+	[JsonPropertyName("back_transparent")]
+	public string BackTransparent { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_gray")]
+	public string FrontGray { get; set; }
+
+	[JsonPropertyName("front_transparent")]
+	public string FrontTransparent { get; set; }
+
 }
 
 public class Yellow
 {
-    public string back_default { get; set; }
-    public string back_gray { get; set; }
-    public string back_transparent { get; set; }
-    public string front_default { get; set; }
-    public string front_gray { get; set; }
-    public string front_transparent { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_gray")]
+	public string BackGray { get; set; }
+
+	[JsonPropertyName("back_transparent")]
+	public string BackTransparent { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_gray")]
+	public string FrontGray { get; set; }
+
+	[JsonPropertyName("front_transparent")]
+	public string FrontTransparent { get; set; }
+
 }
 
 public class Generation_ii
 {
-    public Crystal crystal { get; set; }
-    public Gold gold { get; set; }
-    public Silver silver { get; set; }
+	[JsonPropertyName("crystal")]
+	public Crystal Crystal { get; set; }
+
+	[JsonPropertyName("gold")]
+	public Gold Gold { get; set; }
+
+	[JsonPropertyName("silver")]
+	public Silver Silver { get; set; }
+
 }
 
 public class Crystal
 {
-    public string back_default { get; set; }
-    public string back_shiny { get; set; }
-    public string back_shiny_transparent { get; set; }
-    public string back_transparent { get; set; }
-    public string front_default { get; set; }
-    public string front_shiny { get; set; }
-    public string front_shiny_transparent { get; set; }
-    public string front_transparent { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("back_shiny_transparent")]
+	public string BackShinyTransparent { get; set; }
+
+	[JsonPropertyName("back_transparent")]
+	public string BackTransparent { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_transparent")]
+	public string FrontShinyTransparent { get; set; }
+
+	[JsonPropertyName("front_transparent")]
+	public string FrontTransparent { get; set; }
+
 }
 
 public class Gold
 {
-    public string back_default { get; set; }
-    public string back_shiny { get; set; }
-    public string front_default { get; set; }
-    public string front_shiny { get; set; }
-    public string front_transparent { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_transparent")]
+	public string FrontTransparent { get; set; }
+
 }
 
 public class Silver
 {
-    public string back_default { get; set; }
-    public string back_shiny { get; set; }
-    public string front_default { get; set; }
-    public string front_shiny { get; set; }
-    public string front_transparent { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_transparent")]
+	public string FrontTransparent { get; set; }
+
 }
 
 public class Generation_iii
 {
-    public Emerald emerald { get; set; }
-    public Firered_leafgreen firered_leafgreen { get; set; }
-    public Ruby_sapphire ruby_sapphire { get; set; }
+	[JsonPropertyName("emerald")]
+	public Emerald Emerald { get; set; }
+
+	[JsonPropertyName("firered_leafgreen")]
+	public Firered_leafgreen FireredLeafgreen { get; set; }
+
+	[JsonPropertyName("ruby_sapphire")]
+	public Ruby_sapphire RubySapphire { get; set; }
+
 }
 
 public class Emerald
 {
-    public string front_default { get; set; }
-    public string front_shiny { get; set; }
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
 }
 
 public class Firered_leafgreen
 {
-    public string back_default { get; set; }
-    public string back_shiny { get; set; }
-    public string front_default { get; set; }
-    public string front_shiny { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
 }
 
 public class Ruby_sapphire
 {
-    public string back_default { get; set; }
-    public string back_shiny { get; set; }
-    public string front_default { get; set; }
-    public string front_shiny { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
 }
 
 public class Generation_iv
 {
-    public Diamond_pearl diamond_pearl { get; set; }
-    public Heartgold_soulsilver heartgold_soulsilver { get; set; }
-    public Platinum platinum { get; set; }
+	[JsonPropertyName("diamond_pearl")]
+	public Diamond_pearl DiamondPearl { get; set; }
+
+	[JsonPropertyName("heartgold_soulsilver")]
+	public Heartgold_soulsilver HeartgoldSoulsilver { get; set; }
+
+	[JsonPropertyName("platinum")]
+	public Platinum Platinum { get; set; }
+
 }
 
 public class Diamond_pearl
 {
-    public string back_default { get; set; }
-    public object back_female { get; set; }
-    public string back_shiny { get; set; }
-    public object back_shiny_female { get; set; }
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_female")]
+	public object BackFemale { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("back_shiny_female")]
+	public object BackShinyFemale { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
 }
 
 public class Heartgold_soulsilver
 {
-    public string back_default { get; set; }
-    public object back_female { get; set; }
-    public string back_shiny { get; set; }
-    public object back_shiny_female { get; set; }
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_female")]
+	public object BackFemale { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("back_shiny_female")]
+	public object BackShinyFemale { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
 }
 
 public class Platinum
 {
-    public string back_default { get; set; }
-    public object back_female { get; set; }
-    public string back_shiny { get; set; }
-    public object back_shiny_female { get; set; }
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_female")]
+	public object BackFemale { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("back_shiny_female")]
+	public object BackShinyFemale { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
 }
 
 public class Generation_v
 {
-    public Black_white black_white { get; set; }
+	[JsonPropertyName("black_white")]
+	public Black_white BlackWhite { get; set; }
+
 }
 
 public class Black_white
 {
-    public Animated animated { get; set; }
-    public string back_default { get; set; }
-    public object back_female { get; set; }
-    public string back_shiny { get; set; }
-    public object back_shiny_female { get; set; }
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
+	[JsonPropertyName("animated")]
+	public Animated Animated { get; set; }
+
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_female")]
+	public object BackFemale { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("back_shiny_female")]
+	public object BackShinyFemale { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
 }
 
 public class Animated
 {
-    public string back_default { get; set; }
-    public object back_female { get; set; }
-    public string back_shiny { get; set; }
-    public object back_shiny_female { get; set; }
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
+	[JsonPropertyName("back_default")]
+	public string BackDefault { get; set; }
+
+	[JsonPropertyName("back_female")]
+	public object BackFemale { get; set; }
+
+	[JsonPropertyName("back_shiny")]
+	public string BackShiny { get; set; }
+
+	[JsonPropertyName("back_shiny_female")]
+	public object BackShinyFemale { get; set; }
+
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
 }
 
 public class Generation_vi
 {
-    public Omegaruby_alphasapphire omegaruby_alphasapphire { get; set; }
-    public X_y x_y { get; set; }
+	[JsonPropertyName("omegaruby_alphasapphire")]
+	public Omegaruby_alphasapphire OmegarubyAlphasapphire { get; set; }
+
+	[JsonPropertyName("x_y")]
+	public X_y XY { get; set; }
+
 }
 
 public class Omegaruby_alphasapphire
 {
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
 }
 
 public class X_y
 {
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
 }
 
 public class Generation_vii
 {
-    public Icons icons { get; set; }
-    public Ultra_sun_ultra_moon ultra_sun_ultra_moon { get; set; }
+	[JsonPropertyName("icons")]
+	public Icons Icons { get; set; }
+
+	[JsonPropertyName("ultra_sun_ultra_moon")]
+	public Ultra_sun_ultra_moon UltraSunUltraMoon { get; set; }
+
 }
 
 public class Icons
 {
-    public string front_default { get; set; }
-    public object front_female { get; set; }
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
 }
 
 public class Ultra_sun_ultra_moon
 {
-    public string front_default { get; set; }
-    public object front_female { get; set; }
-    public string front_shiny { get; set; }
-    public object front_shiny_female { get; set; }
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
+	[JsonPropertyName("front_shiny")]
+	public string FrontShiny { get; set; }
+
+	[JsonPropertyName("front_shiny_female")]
+	public object FrontShinyFemale { get; set; }
+
 }
 
 public class Generation_viii
 {
-    public Icons1 icons { get; set; }
+	[JsonPropertyName("icons")]
+	public Icons1 Icons { get; set; }
+
 }
 
 public class Icons1
 {
-    public string front_default { get; set; }
-    public object front_female { get; set; }
+	[JsonPropertyName("front_default")]
+	public string FrontDefault { get; set; }
+
+	[JsonPropertyName("front_female")]
+	public object FrontFemale { get; set; }
+
 }
 
 public class Stats
 {
-    public int base_stat { get; set; }
-    public int effort { get; set; }
-    public Stat stat { get; set; }
+	[JsonPropertyName("base_stat")]
+	public int BaseStat { get; set; }
+
+	[JsonPropertyName("effort")]
+	public int Effort { get; set; }
+
+	[JsonPropertyName("stat")]
+	public Stat Stat { get; set; }
+
 }
 
 public class Stat
 {
-    public string name { get; set; }
-    public string url { get; set; }
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
 }
 
 public class Types
 {
-    public int slot { get; set; }
-    public Type type { get; set; }
+	[JsonPropertyName("slot")]
+	public int Slot { get; set; }
+
+	[JsonPropertyName("type")]
+	public Type Type { get; set; }
+
 }
 
 public class Type
 {
-    public string name { get; set; }
-    public string url { get; set; }
-}
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
 
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
+}
