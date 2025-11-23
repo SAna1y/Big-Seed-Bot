@@ -59,7 +59,7 @@ public class NhentaiClient : Wrapper
         
         int maxPostCount = (result.ApiResponse.NumberOfPages-1)*result.ApiResponse.ResultsPerPage + lastPageCount;
         
-        int rng = Program.rng.Next(1, maxPostCount+1);
+        int rng = Program.Rng.Next(1, maxPostCount+1);
 
         bool isLastPost = rng % result.ApiResponse.ResultsPerPage == 0;
         int paginateRngPage = isLastPost ? rng / result.ApiResponse.ResultsPerPage : rng / result.ApiResponse.ResultsPerPage + 1;

@@ -1,3 +1,4 @@
+using Big_Seed_Bot.Api_Handler.GelbooruWrapper;
 using Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses.GelbooruResponses;
@@ -14,7 +15,8 @@ namespace Big_Seed_Bot.Commands;
 
 public class GelbooruCommandModule : BaseCommandModule
 {
-    private GelbooruClient _client = new GelbooruClient(Program._gelbooruAuth);
+    public Authenticator _authenticator {private get; set; }
+    private GelbooruClient _client;
     
     private readonly DiscordButtonComponent _deleteGelbooruPostButton = new DiscordButtonComponent(ButtonStyle.Danger, "deleteButton", "DELETE");
     private readonly ButtonActionHandler _buttonActionHandler;
@@ -23,8 +25,8 @@ public class GelbooruCommandModule : BaseCommandModule
 
     public GelbooruCommandModule()
     {
+        _client = new GelbooruClient(_authenticator!);
         EventHandlerUtil.DiscordButtonPressed += OnButtonPressed;
-
         _buttonActionHandler = new ButtonActionHandler((_deleteGelbooruPostButton, OnDeleteButtonPressed));
     }
 

@@ -13,7 +13,8 @@ public class ButtonActionHandler
     {
         foreach ((DiscordButtonComponent button, ButtonActionDelegate) buttonAction in buttonActions)
         {
-            ButtonActions.Add(buttonAction.button.CustomId!, buttonAction.Item2);
+            if (string.IsNullOrWhiteSpace(buttonAction.button.CustomId)) continue;
+            ButtonActions.Add(buttonAction.button.CustomId, buttonAction.Item2);
         }
     }
 }

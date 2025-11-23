@@ -14,12 +14,11 @@ namespace Big_Seed_Bot;
 internal class Program
 {
     private static readonly Dictionary<string, string>? _env = DotEnvReader.Read(Path.GetFullPath(".env"));
-    private static readonly string? Token = _env?["TOKEN"];
-    private static readonly string? APIKey = _env?["GELBOORUKEY"];
-    private static readonly string? UserID = _env?["GELBOORUID"];
+    private static readonly string Token = _env?["TOKEN"];
+    private static readonly string APIKey = _env?["GELBOORUKEY"];
+    private static readonly string UserID = _env?["GELBOORUID"];
 
-    public static Random rng = new Random();
-    public static Authenticator _gelbooruAuth {get; private set;}
+    public static Random Rng = new Random();
     
     private static void Main(string[] args)
     {
@@ -28,7 +27,6 @@ internal class Program
             Console.WriteLine("A key was not provided. Set up your .env file."); 
             return;
         }
-        _gelbooruAuth = new Authenticator(APIKey, UserID);
         
         MainAsync().GetAwaiter().GetResult();
     }
@@ -40,9 +38,11 @@ internal class Program
             TokenType = TokenType.Bot,
             Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContent
         });
+        Authenticator gelbooruAuth = new Authenticator(APIKey, UserID);
         
         ServiceProvider services = new ServiceCollection()
             .AddSingleton<CommandService>()
+            .AddSingleton(gelbooruAuth)
             .BuildServiceProvider();
         
         CommandsSetup(discord, services);
