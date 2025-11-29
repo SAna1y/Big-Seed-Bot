@@ -1,5 +1,3 @@
-using System.Text.Json;
-using Big_Seed_Bot.Api_Handler.GelbooruWrapper;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses.GelbooruResponses;
 

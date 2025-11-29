@@ -1,4 +1,4 @@
-namespace Big_Seed_Bot.Api_Handler.GelbooruWrapper;
+namespace Big_Seed_Bot.Api_Handler.Wrappers.Gelbooru;
 
 public class Authenticator
 {
