@@ -18,21 +18,6 @@ public struct Response<T> where T : IResponse
         Error = "";
     }
 
-    public void Log()
-    {
-        string fileContent = "";
-        if (ApiResponse is null)
-        {
-            fileContent += "\n" + "\n" + "Path: " + Path + "\n";
-            fileContent += "Error: " + Error;
-            File.AppendAllText("log.txt", fileContent);
-            return;
-        }
-        fileContent += "\n" + "\n" + "Path: " + Path + "\n";
-        fileContent += ApiResponse?.GetUrl() ?? "";
-        File.AppendAllText("log.txt", fileContent);
-    }
-
     public void DisableResponse()
     {
         ApiResponse = default;

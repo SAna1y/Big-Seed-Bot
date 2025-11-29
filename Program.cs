@@ -8,6 +8,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Big_Seed_Bot;
 
@@ -19,6 +20,7 @@ internal class Program
     private static readonly string UserID = _env?["GELBOORUID"];
 
     public static Random Rng = new Random();
+    public static ILogger<BaseDiscordClient> logger;
     
     private static void Main(string[] args)
     {
@@ -50,6 +52,7 @@ internal class Program
         discord.ComponentInteractionCreated += DiscordOnComponentInteractionCreated;
         await discord.ConnectAsync();
         await discord.UpdateStatusAsync(activity: new DiscordActivity("activity", ActivityType.Custom) {Name = "planting flowers"});
+        logger = discord.Logger;
         
         await Task.Delay(-1);
     }

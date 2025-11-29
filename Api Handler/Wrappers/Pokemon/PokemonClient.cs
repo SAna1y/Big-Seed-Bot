@@ -6,6 +6,4 @@ public class PokemonClient : Wrapper
     {
         BaseUrl = new Uri("https://pokeapi.co/api/v2");
     }
-    
-    
 }
