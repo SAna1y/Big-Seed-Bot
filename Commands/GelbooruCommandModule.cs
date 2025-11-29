@@ -34,7 +34,6 @@ public class GelbooruCommandModule : BaseCommandModule
     [Command("goon")]
     public async Task GelbooruGetPostCommand(CommandContext ctx, params string[] searchText)
     {
-        
         Response<GelbooruPostRoot> result = await _client.GetRandomPost(searchText);
         
         if (result.ApiResponse?.Posts is null)

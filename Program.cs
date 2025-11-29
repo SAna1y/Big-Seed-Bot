@@ -56,6 +56,7 @@ internal class Program
         commands.RegisterCommands<UserCommandModule>();
         commands.RegisterCommands<GelbooruCommandModule>();
         commands.RegisterCommands<NhentaiCommandModule>();
+        commands.RegisterCommands<PokemonCommandModule>();
     }
     private static async Task DiscordOnComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
     {

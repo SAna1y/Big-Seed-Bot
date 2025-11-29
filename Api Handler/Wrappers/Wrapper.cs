@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Big_Seed_Bot.Api_Handler.Wrappers.Responses;
-using DisCatSharp;
 using Microsoft.Extensions.Logging;
 
 namespace Big_Seed_Bot.Api_Handler.Wrappers;
@@ -28,7 +27,7 @@ public abstract class Wrapper : IDisposable
             T? root = JsonSerializer.Deserialize<T>(responseBody);
             result = new Response<T>(root, url) {Error = string.Empty};
             Program.logger.Log(LogLevel.Information, "Response from {Url}: {Result}", url,
-                responseBody);
+                root?.GetUrl());
         }
         catch (Exception e)
         {

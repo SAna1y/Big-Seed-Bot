@@ -11,7 +11,7 @@ public class GelbooruClient : Wrapper
     {
         BaseUrl = new Uri("https://gelbooru.com/");
         UrlExtension = "index.php?";
-        BaseTags = "rating:g -loli";
+        BaseTags = "-loli";
         _authenticationUrl = $"&user_id={authenticator.UserId}&api_key={authenticator.Key}";
     }
     

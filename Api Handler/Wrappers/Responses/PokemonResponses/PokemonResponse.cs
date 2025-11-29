@@ -66,7 +66,7 @@ public class PokemonResponse : IResponse
 	
 	public string GetUrl()
 	{
-		throw new NotImplementedException();
+		return $"https://pokeapi.co/api/v2/pokemon/{Id}";
 	}
 }
 
