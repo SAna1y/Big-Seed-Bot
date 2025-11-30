@@ -18,7 +18,7 @@ public abstract class Wrapper : IDisposable
 
     protected readonly HttpClient Client = new HttpClient();
     
-    protected async Task<Response<T>> Get<T>(Func<string, Task<string>> get, string url = "") where T : class, IResponse
+    protected async Task<Response<T>> Get<T>(Func<string, Task<string>> get, string url) where T : class, IResponse
     {
         Response<T> result;
         try

@@ -12,7 +12,9 @@ public class PokemonClient : Wrapper
 
     public async Task<Response<PokemonResponse>> GetPokemon(string name)
     {
-        Response<PokemonResponse> pokemon = await Get<PokemonResponse>(Client.GetStringAsync, $"{BaseUrl}/pokemon/{name}");
+        Response<PokemonResponse> pokemon =
+            await Get<PokemonResponse>(Client.GetStringAsync, $"{BaseUrl}/pokemon/{name}");
         return pokemon;
     }
+    
 }

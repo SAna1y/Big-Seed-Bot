@@ -31,6 +31,7 @@ internal class Program
             TokenType = TokenType.Bot,
             Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContent
         });
+        logger = discord.Logger;
         
         ServiceProvider services = new ServiceCollection()
             .AddSingleton<CommandService>()
@@ -41,7 +42,7 @@ internal class Program
         discord.ComponentInteractionCreated += DiscordOnComponentInteractionCreated;
         await discord.ConnectAsync();
         await discord.UpdateStatusAsync(activity: new DiscordActivity("activity", ActivityType.Custom) {Name = "planting flowers"});
-        logger = discord.Logger;
+        
         
         await Task.Delay(-1);
     }
